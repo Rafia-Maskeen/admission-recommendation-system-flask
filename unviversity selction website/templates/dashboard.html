@@ -1,0 +1,190 @@
+{% extends "bootstrap/base.html" %}
+{% block title %} Dashboard {% endblock %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<style>
+    body, html {
+        height: 100%;
+        margin: 0;
+    }
+    .video-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+    }
+    .bg-custom {
+        background-color: #003366; /* Dark blue color */
+    }
+    .navbar-dark .navbar-nav .nav-link {
+        color: white;
+    }
+    .navbar-dark .navbar-brand {
+        color: white;
+    }
+    .navbar-dark .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    }
+    .form-container {
+        background-color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        margin-top: 60px;
+        margin-bottom: 100px;
+        overflow: hidden;
+    }
+    .form-title {
+        margin-bottom: 30px;
+        font-weight: bold;
+        color: #003366;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-control {
+        border-radius: 10px;
+    }
+    .btn-primary {
+        background-color: #003366;
+        border: none;
+        border-radius: 10px;
+        transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #00509e;
+    }
+    #result {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #e9ecef;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+{% endblock %}
+{% block content %}
+<body>
+  <video autoplay muted loop class="video-bg">
+    <source src="../static/vid.mp4" type="video/mp4">
+  </video>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-custom fixed-top shadow-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand fs-3" href="#">Project name</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbar">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 fs-3 ">
+        <li class="nav-item">
+          <a class="nav-link " href="#">Dashboard</a>
+        </li>
+        <li class="nav-item ms-5">
+          <a class="nav-link" href="#">Settings</a>
+        </li>
+        <li class="nav-item ms-5">
+          <a class="nav-link" href="#">Profile</a>
+        </li>
+        <li class="nav-item ms-5">
+          <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+        </li>
+      </ul>
+      <form class="d-flex ms-auto me-5 ">
+        <input class="form-control me-5 rounded-pill px-4" type="search" placeholder="Search..." aria-label="Search">
+      </form>
+    </div>
+  </div>
+</nav>
+
+<div class="container d-flex justify-content-center">
+  <div class="col-md-8 col-lg-6 form-container">
+    <h1 class="text-center form-title fs-1 fw-bold">Welcome, {{ name }}</h1>
+    <p class="text-center fs-4 mb-5" id="result">Fill the to predict your result</p>
+
+    <form id="prediction-form">
+      {{ form.hidden_tag() }}
+      <div class="row">
+        <div class="form-group col-md-6 fs-4">
+          {{ form.admission_marks.label(class="form-label") }} 
+          {{ form.admission_marks(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6 fs-4">
+          {{ form.minimum_entry_mark.label(class="form-label") }} 
+          {{ form.minimum_entry_mark(class="form-control") }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-md-6 fs-4">
+          {{ form.fees_structure.label(class="form-label") }} 
+          {{ form.fees_structure(class="form-control") }}
+        </div>
+        <div class="form-group col-md-6 fs-4">
+          <label for="departments_offered" class="form-label rounded-pill h-5">Departments Offered</label>
+          <select id="departments_offered" name="departments_offered" class="form-select">
+            <option value="" selected>Select a department</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Arts and design">Arts and design</option>
+            <option value="Psychology">Psychology</option>
+            <!-- Add more options here as needed -->
+          </select>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary w-100 mt-3 py-3 fs-4" onclick="submitForm()">Predict</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+  $('#departments_offered').select2();
+});
+
+function submitForm() {
+  const form = document.getElementById('prediction-form');
+  const formData = new FormData(form);
+  console.log(formData)
+
+  // Convert form data to JSON with the exact keys
+  const data = {
+    'Admission marks': formData.get('admission_marks'),
+    'minimum entry mark': formData.get('minimum_entry_mark'),
+    'fees structure': formData.get('fees_structure'),
+    'Departments_Offered': formData.get('departments_offered')
+  };
+
+  // Send POST request to the predict API
+  fetch('/predict', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())
+  .then(result => {
+    if (result.error) {
+      document.getElementById('result').innerHTML = `<p class="text-danger">Error: ${result.error}</p>`;
+    } else {
+      document.getElementById('result').innerHTML = `<p class="text-success">Prediction: ${result.university}</p>`;
+      document.getElementById('admission_marks').value = '';
+      document.getElementById('minimum_entry_mark').value = '';
+      document.getElementById('fees_structure').value = '';
+      document.getElementById('departments_offered').value = '';
+    }
+  })
+  .catch(error => {
+    document.getElementById('result').innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+  });
+}
+</script>
+{% endblock %}
